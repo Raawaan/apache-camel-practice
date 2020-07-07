@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <campaign
+            id="1"
+            name="test xml"
+            bot_id="2"
+    />
+    <campaign
+            id="2"
+            name="test"
+            bot_id="8"
+    />
+    <campaign
+            id="3"
+            name="xml"
+            bot_id="6"
+    />
+</dataset>

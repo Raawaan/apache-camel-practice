@@ -17,9 +17,7 @@ public class TriggerCampaignsRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         from("direct:triggerCampaigns")
-                .process(exchange -> {
-                    exchange.getIn().setBody(campaignService.getCampaigns());
-                })
+                .bean(campaignService, "getCampaigns")
                 .split(body())
                 .to("seda:checkBotStatus")
                 .choice()

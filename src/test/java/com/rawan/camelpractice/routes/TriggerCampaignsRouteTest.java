@@ -13,6 +13,7 @@ import org.apache.camel.test.spring.CamelSpringBootRunner;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestExecutionListeners;
@@ -23,8 +24,12 @@ import java.util.List;
 
 @RunWith(CamelSpringBootRunner.class)
 @SpringBootTest
+@TestExecutionListeners({
+        DependencyInjectionTestExecutionListener.class,
+        TransactionDbUnitTestExecutionListener.class
+})
 class TriggerCampaignsRouteTest {
-    @MockBean
+    @Autowired
     private CampaignService campaignService;
 
     @EndpointInject(value = "mock:direct:botError")
@@ -35,31 +40,23 @@ class TriggerCampaignsRouteTest {
 
     @Produce(value = "direct:triggerCampaigns")
     protected ProducerTemplate producerTemplate;
+
     @Test
-    void checkBotIsError() throws InterruptedException {
-        List<Campaign> campaignsOdd = Arrays.asList(new Campaign(1,"moo",13),
-                new Campaign(1,"moo",11),new Campaign(1,"moo",7));
-        Mockito.when(campaignService.getCampaigns()).thenReturn(campaignsOdd);
-        producerTemplate.sendBody(campaignsOdd);
-        botErrorMockEndpoint.expectedMessageCount(3);
-        botErrorMockEndpoint.expectedBodiesReceived(campaignsOdd);
-        botErrorMockEndpoint.assertIsSatisfied();
-    }
-    @Test
+    @DatabaseSetup(value = "classpath:addEvenCampaigns.xml")
     void checkCampaignIsChunked() throws InterruptedException {
-        List<Campaign> campaignsEven = Arrays.asList(new Campaign(1,"moo",12),
-                new Campaign(1,"moo",8),new Campaign(1,"moo",10));
-        Mockito.when(campaignService.getCampaigns()).thenReturn(campaignsEven);
-        producerTemplate.sendBody(campaignsEven);
-        chunkCampaignsEndPoint.expectedMessageCount(3);
+        List<Campaign> campaignsEven =  campaignService.getCampaigns();
+        producerTemplate.sendBody("");
+        chunkCampaignsEndPoint.expectedMessageCount(campaignsEven.size());
         chunkCampaignsEndPoint.expectedBodiesReceived(campaignsEven);
         chunkCampaignsEndPoint.assertIsSatisfied();
     }
-//    @Test
-//    @DatabaseSetup(value = "classpath:addCampaigns.xml")
-//    void checkCampaignIsChunkedUsingXml() throws InterruptedException {
-//        producerTemplate.sendBody("");
-//        chunkCampaignsEndPoint.expectedMessageCount(1);
-//        chunkCampaignsEndPoint.assertIsSatisfied();
-//    }
+    @Test
+    @DatabaseSetup(value = "classpath:addOddCampaigns.xml")
+    void checkBotIsError() throws InterruptedException {
+        List<Campaign> campaignsEven =  campaignService.getCampaigns();
+        producerTemplate.sendBody("");
+        botErrorMockEndpoint.expectedMessageCount(campaignsEven.size());
+        botErrorMockEndpoint.expectedBodiesReceived(campaignsEven);
+        botErrorMockEndpoint.assertIsSatisfied();
+    }
 }

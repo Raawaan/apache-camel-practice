@@ -21,9 +21,7 @@ public class CheckBotStatusRoute extends RouteBuilder {
                     if (((Campaign) exchange.getIn().getBody()).getId() % 2 == 0) {
                         Thread.sleep(30000);
                     }
-                })
-                .to("log:info");
-
+                });
 
     }
 }
