@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <campaign
+            id="1"
+            name="test xml"
+            bot_id="2"
+    />
+</dataset>
