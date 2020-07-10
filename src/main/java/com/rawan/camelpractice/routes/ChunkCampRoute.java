@@ -8,15 +8,11 @@ import org.springframework.stereotype.Component;
 public class ChunkCampRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
-        from("seda:chunkCampaigns??concurrentConsumers=10")
-                .split(body())
+        from("seda:chunkCampaigns?concurrentConsumers=10")
                 .process(exchange -> {
-                    if (((Campaign) exchange.getIn().getBody()).getId()%2==0){
-                        Thread.sleep(30000);
-                    }
+
                     exchange.getIn().setBody("chunking"+exchange.getIn().getBody());
                 })
                 .to("log:info");
     }
-
 }
