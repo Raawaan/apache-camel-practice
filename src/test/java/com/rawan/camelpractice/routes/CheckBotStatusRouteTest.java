@@ -1,5 +1,6 @@
 package com.rawan.camelpractice.routes;
 
+import com.rawan.camelpractice.constant.CampaignsDummy;
 import com.rawan.camelpractice.entities.Campaign;
 import com.rawan.camelpractice.routes.CheckBotStatusRoute;
 import com.rawan.camelpractice.services.BotService;
@@ -52,7 +53,7 @@ public class CheckBotStatusRouteTest extends CamelTestSupport {
 
     @Test
     void checkCampaignIsChunked() throws InterruptedException {
-        Campaign campaign = new Campaign(1,"ahha",12);
+        Campaign campaign = CampaignsDummy.evenCampaign;
         when(botService.checkBotStatus(anyInt())).thenReturn(true);
         producerTemplate.sendBody(campaign);
         chunkCampaignsEndPoint.expectedMessageCount(1);
@@ -61,7 +62,7 @@ public class CheckBotStatusRouteTest extends CamelTestSupport {
     }
     @Test
     void checkBotIsError() throws InterruptedException {
-        Campaign campaign = new Campaign(1,"ahha",15);
+        Campaign campaign = CampaignsDummy.oddCampaign;
         when(botService.checkBotStatus(anyInt())).thenReturn(false);
         producerTemplate.sendBody(campaign);
         botErrorMockEndpoint.expectedMessageCount(1);
